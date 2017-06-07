@@ -23,26 +23,22 @@ var spotify = new Spotify({
     secret: '1799f1c44bce4046a2fc8a80bd2a1099'
 });
 
-function userInput() {
-    for (var i = 2; i < process.argv.length; i++) {
-        var action = process.argv[i];
-        console.log(action);
-        liriOptions(action);
-    }
-}
+//Initialize application
+liriOptions(process.argv[2], process.argv[3]);
 
-function liriOptions(action) {
+//Need to work on the logic to get arguments and run random commands to liri
+function liriOptions(command, param) {
     var song = 'I Want it That Way';
     var movie = 'Batman';
-    switch (action) {
+    switch (command) {
         case 'my-tweets':
             myTweets();
             break;
         case 'spotify-this-song':
-            mySpotify(song);
+            mySpotify(param);
             break;
         case 'movie-this':
-            myMovie(movie);
+            myMovie(param);
             break;
         case 'do-what-it-says':
             randomCommand();
@@ -86,7 +82,6 @@ function myMovie(movie) {
     var omdbApiurl = 'http://www.omdbapi.com/?i=tt3896198&apikey=' + keyOmdb + '&s=' + movie + "&tomatoes=true&r=json";
     request(omdbApiurl, function(error, response, body) {
         var movieData = JSON.parse(body);
-        console.log(movieData);
         console.log("Title: " + movieData.Search[0].Title);
         console.log("Year: " + movieData.Search[0].Year);
         console.log("IMDB: " + movieData.Search[0].imdbID);
@@ -102,7 +97,6 @@ function myMovie(movie) {
 function randomCommand() {
     var readFile = fs.readFileSync('random.txt', 'utf8');
     var commandLiri = readFile.replace(/"/g, " ").trim();
-    var formatCommand = commandLiri.replace(/,/g, "").trim();
-    console.log(formatCommand);
+    var param1 = commandLiri.split(",");
+    liriOptions(param1[0], param1[1]);
 }
-userInput();
