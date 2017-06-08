@@ -1,24 +1,29 @@
+"use strict";
+//Create variables to require node packages using const ES6
 const keys = require('./keys.js');
 const Twitter = require('twitter');
 const Spotify = require('node-spotify-api');
 const request = require('request');
 const fs = require('fs');
-let keyOmdb = '40e9cece';
 
-//Get keys
+//Create variable to hold key for Omdb API
+const keyOmdb = '40e9cece';
+
+// Create variables to hold keys for twitter API
 const consumerKey = keys.twitterKeys.consumer_key;
 const consumerSecret = keys.twitterKeys.consumer_secret;
 const tokenKey = keys.twitterKeys.access_token_key;
 const tokenKeySecret = keys.twitterKeys.access_token_secret;
 
-var client = new Twitter({
+const client = new Twitter({
     consumer_key: consumerKey,
     consumer_secret: consumerSecret,
     access_token_key: tokenKey,
     access_token_secret: tokenKeySecret
 });
 
-var spotify = new Spotify({
+// Create variables to hold keys for Spotity API
+const spotify = new Spotify({
     id: '24731bb70e7145a6b5dc739008989597',
     secret: '1799f1c44bce4046a2fc8a80bd2a1099'
 });
@@ -26,40 +31,43 @@ var spotify = new Spotify({
 //Initialize application
 liriOptions(process.argv[2], process.argv[3]);
 
-//Need to work on the logic to get arguments and run random commands to liri
+//Using switch case to listen to commands
 function liriOptions(command, param) {
-    var song = 'I Want it That Way';
-    var movie = 'Batman';
+    let paramCommand = command + ' ' + param + ' ' + process.argv[4];
     switch (command) {
         case 'my-tweets':
             myTweets();
+            saveLog(command);
             break;
         case 'spotify-this-song':
             mySpotify(param);
+            saveLog(paramCommand);
             break;
         case 'movie-this':
             myMovie(param);
+            saveLog(paramCommand);
             break;
         case 'do-what-it-says':
             randomCommand();
             break;
         default:
-            console.log('Sorry, we do not have this option');
+            console.log('Sorry, we do not have this option.');
     }
 };
-
+//Twitter function, return the last 20 twitters
 function myTweets() {
+    let count;
     client.get('statuses/home_timeline', count = 20, function(error, tweets, response) {
         if (!error) {
-            for (var i in tweets) {
-                console.log("Tweet " + i + ":" + tweets[i].text);
-                console.log("Tweet created on " + i + ":" + tweets[i].created_at);
+            for (let i in tweets) {
+                console.log('Tweet ' + i + ':' + tweets[i].text);
+                console.log('Tweet created on ' + i + ':' + tweets[i].created_at);
             }
         }
     })
 };
 
-
+//Spotify function, return songs followed by argument. If there is no song specified retun the song 'The Sign'
 function mySpotify(song) {
     if (!song) {
         song = 'The Sign';
@@ -68,35 +76,46 @@ function mySpotify(song) {
         if (err) {
             return console.log('Error occurred: ' + err);
         }
-        console.log("Artist: " + data.tracks.items[0].artists[0].name);
-        console.log("Song Name: " + data.tracks.items[0].name);
-        console.log("Spotify Preview Link: " + data.tracks.items[0].external_urls.spotify);
-        console.log("Album: " + data.tracks.items[0].album.name);
+        console.log('Artist: ' + data.tracks.items[0].artists[0].name);
+        console.log('Song Name: ' + data.tracks.items[0].name);
+        console.log('Spotify Preview Link: ' + data.tracks.items[0].external_urls.spotify);
+        console.log('Album: ' + data.tracks.items[0].album.name);
     });
 }
 
+//Movie function, return movie followed by argument. If there is no movie specified retun the movie 'Mr. Nobody'
 function myMovie(movie) {
     if (!movie) {
         movie = 'Mr. Nobody';
     }
-    var omdbApiurl = 'http://www.omdbapi.com/?i=tt3896198&apikey=' + keyOmdb + '&s=' + movie + "&tomatoes=true&r=json";
-    request(omdbApiurl, function(error, response, body) {
-        var movieData = JSON.parse(body);
-        console.log("Title: " + movieData.Search[0].Title);
-        console.log("Year: " + movieData.Search[0].Year);
-        console.log("IMDB: " + movieData.Search[0].imdbID);
-        console.log("Country: " + movieData.Search[0].Country);
-        console.log("Language: " + movieData.Search[0].Language);
-        console.log("Plot: " + movieData.Search[0].Plot);
-        console.log("Actors: " + movieData.Search[0].Actors);
-        console.log("Rotten Tomatoes Rating: " + movieData.Search[0].tomatoUserRating);
-        console.log("Rotten Tomatoes URL: " + movieData.Search[0].tomatoURL);
+    let omdbApiUrl = 'http://www.omdbapi.com/?t=' + movie + '&apikey=' + keyOmdb + '&y=&plot=full&tomatoes=true&r=json';
+    request(omdbApiUrl, function(error, response, body) {
+        let movieData = JSON.parse(body);
+        console.log('Title: ' + movieData.Title);
+        console.log('Year: ' + movieData.Year);
+        console.log('IMDB: ' + movieData.imdbID);
+        console.log('Country: ' + movieData.Country);
+        console.log('Language: ' + movieData.Language);
+        console.log('Plot: ' + movieData.Plot);
+        console.log('Actors: ' + movieData.Actors);
+        console.log('Rotten Tomatoes Rating: ' + movieData.tomatoUserRating);
+        console.log('Rotten Tomatoes URL: ' + movieData.tomatoURL);
     });
 }
 
+//Function randomCommand execute the command inside of random.txt file
 function randomCommand() {
-    var readFile = fs.readFileSync('random.txt', 'utf8');
-    var commandLiri = readFile.replace(/"/g, " ").trim();
-    var param1 = commandLiri.split(",");
+    let readFile = fs.readFileSync('random.txt', 'utf8');
+    let commandLiri = readFile.replace(/"/g, ' ').trim();
+    let param1 = commandLiri.split(',');
     liriOptions(param1[0], param1[1]);
+};
+
+//Function saveLog save all the commands inside of the file log.txt
+function saveLog(command) {
+    let logCommand = command + '\r\n';
+    fs.appendFile('log.txt', logCommand, function(err) {
+        if (err) throw err;
+        console.log('Log saved!');
+    });
 }
