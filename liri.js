@@ -35,14 +35,14 @@ const spotify = new Spotify({
 function init() {
     var extraArg;
     var nodeArgs = process.argv;
-    for (var i = 3; i < nodeArgs.length; i++) {
+    for (let i = 3; i < nodeArgs.length; i++) {
         extraArg = extraArg + " " + nodeArgs[i];
     }
     if (extraArg === undefined) {
-        var argCommand = '';
+        let argCommand = '';
     } else {
-        var replaceString = extraArg.replace('undefined', '').trim();
-        var argCommand = replaceString;
+        let replaceString = extraArg.replace('undefined', '').trim();
+        let argCommand = replaceString;
     }
     liriOptions(process.argv[2], argCommand);
 }
