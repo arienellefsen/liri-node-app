@@ -28,12 +28,33 @@ const spotify = new Spotify({
     secret: '1799f1c44bce4046a2fc8a80bd2a1099'
 });
 
+//Function to listen the arguments passed by command
+//If command has only 2 arguments ex: node liri.js my-tweets it set parameter to empty string
+//If function has more than 2 arguments ex: node liri.js movie-this gone girl, find undefined and replace with empty string
+
+function init() {
+    var extraArg;
+    var nodeArgs = process.argv;
+    for (var i = 3; i < nodeArgs.length; i++) {
+        extraArg = extraArg + " " + nodeArgs[i];
+    }
+    if (extraArg === undefined) {
+        var argCommand = '';
+    } else {
+        var replaceString = extraArg.replace('undefined', '').trim();
+        var argCommand = replaceString;
+    }
+    liriOptions(process.argv[2], argCommand);
+}
+
 //Initialize application
-liriOptions(process.argv[2], process.argv[3]);
+init();
 
 //Using switch case to listen to commands
 function liriOptions(command, param) {
-    let paramCommand = command + ' ' + param + ' ' + process.argv[4];
+    let paramCommand = command + ' ' + param;
+    console.log('Param: ' + param);
+    console.log('command: ' + command);
     switch (command) {
         case 'my-tweets':
             myTweets();
@@ -54,6 +75,7 @@ function liriOptions(command, param) {
             console.log('Sorry, we do not have this option.');
     }
 };
+
 //Twitter function, return the last 20 twitters
 function myTweets() {
     let count;
